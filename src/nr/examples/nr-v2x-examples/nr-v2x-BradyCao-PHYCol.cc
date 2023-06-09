@@ -225,14 +225,22 @@ InstallHighwayMobility (uint16_t totalLanes, uint16_t numVehiclesPerLane, uint16
   gridPositionAllocator->SetAttribute ("LayoutType", EnumValue (GridPositionAllocator::ROW_FIRST));
 
   MobilityHelper mobility;
-  mobility.SetMobilityModel ("ns3::ConstantVelocityMobilityModel");
+  mobility.SetMobilityModel ("ns3::ConstantVelocityMobilityModelBounded");
   mobility.SetPositionAllocator (gridPositionAllocator);
-
+  
   mobility.Install (ueNodes);
 
   for (int i = 0; i < totalLanes * numVehiclesPerLane; i++)
     {
-      ueNodes.Get (i)->GetObject<ConstantVelocityMobilityModel> ()->SetVelocity (Vector (speed, 0.0, 0.0));
+      if (i < totalLanes * numVehiclesPerLane/2)
+      {
+        ueNodes.Get (i)->GetObject<ConstantVelocityMobilityModelBounded> ()->SetVelocity (Vector (-1*speed, 0.0, 0.0));
+      }
+      else
+      {
+        ueNodes.Get (i)->GetObject<ConstantVelocityMobilityModelBounded> ()->SetVelocity (Vector (speed, 0.0, 0.0));
+      }
+      
     }
 
   return ueNodes;
@@ -314,7 +322,7 @@ void RecordMobility (bool FirstWrite, std::string fileName)
     {
       outFile.open (fileName.c_str (), std::ios_base::app);
       outFile << std::endl;
-      outFile << std::endl;
+      //outFile << std::endl;
     }
 
   for (NodeList::Iterator it = NodeList::Begin (); it != NodeList::End (); ++it)
@@ -327,12 +335,12 @@ void RecordMobility (bool FirstWrite, std::string fileName)
           if (uedev)
             {
               Vector pos = node->GetObject<MobilityModel> ()->GetPosition ();
-              outFile << Simulator::Now ().GetSeconds () << " " << node->GetId () << " " << uedev->GetImsi () << " " << pos.x << " " << pos.y << std::endl;
+              outFile << Simulator::Now ().GetMilliSeconds () << " " << node->GetId () << " " << pos.x << " " << pos.y << std::endl;
             }
         }
     }
 
-  Simulator::Schedule (Seconds (1), &RecordMobility, FirstWrite, fileName);
+  Simulator::Schedule (MilliSeconds (1), &RecordMobility, FirstWrite, fileName);
 }
 
 /**
@@ -439,11 +447,11 @@ main (int argc, char *argv[])
    * Variables that represent the parameters we will accept as input by the
    * command line. Each of them is initialized with a default value.
    */
-  uint16_t numVehiclesPerLane = 100;
-  uint16_t numLanes = 1;
-  uint16_t interVehicleDist = 1; //meters
-  uint16_t interLaneDist = 1; //meters
-  double speed = 0; //meter per second, default 140 km/h
+  uint16_t numVehiclesPerLane = 130;
+  uint16_t numLanes = 2;
+  uint16_t interVehicleDist = 20; //meters
+  uint16_t interLaneDist = 4; //meters
+  double speed = 0; //meter per second, default 140 km/h - 44.7 m/s=100mph, 22.35 m/s=50 mp
   bool enableOneTxPerLane = false;
   bool logging = false;
 
@@ -462,7 +470,7 @@ main (int argc, char *argv[])
   // NR parameters. We will take the input from the command line, and then we
   // will pass them inside the NR module.
   double centralFrequencyBandSl = 5.89e9; // band n47  TDD //Here band is analogous to channel
-  uint16_t bandwidthBandSl = 200; //Multiple of 100 KHz; 400 = 40 MHz, N_sc*100
+  uint16_t bandwidthBandSl = 100; //Multiple of 100 KHz; 400 = 40 MHz, N_sc*100
   double txPower = 15; //dBm
   std::string tddPattern = "UL|";//"UL|UL|UL|UL|UL|UL|UL|UL|UL|UL|";
   std::string slBitMap = "1|1|";//"1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|";//the length of the bitmap has to be twice the length of the number of elements of tddPattern equal to "UL"
@@ -471,20 +479,20 @@ main (int argc, char *argv[])
   uint16_t slSelectionWindow = 5; // T2min
   uint16_t slSubchannelSize = 50;
   uint16_t slMaxNumPerReserve = 1;
-  double slProbResourceKeep = 0.0;//pKeep
+  double slProbResourceKeep = 0.8;//pKeep
   uint16_t slMaxTxTransNumPssch = 1;//NSe
-  uint16_t reservationPeriod = 100; // in ms
+  uint16_t reservationPeriod = 50; // in ms
   bool enableSensing = true;
   uint16_t t1 = 0;
-  uint16_t t2 = 99;
+  uint16_t t2 = 49;
   int slThresPsschRsrp = -164;
-  bool enableChannelRandomness = false;
-  uint16_t channelUpdatePeriod = 99; //ms
+  bool enableChannelRandomness = true;
+  uint16_t channelUpdatePeriod = 1; //ms
   uint8_t mcs = 14;
 
   //flags to generate gnuplot plotting scripts
   bool generateInitialPosGnuScript = false;
-  bool generateGifGnuScript = false;
+  bool generateGifGnuScript = true;
 
   // Where we will store the output files.
   std::string simTag = "default";
@@ -743,7 +751,7 @@ main (int argc, char *argv[])
 
   nrHelper->SetUePhyAttribute ("TxPower", DoubleValue (txPower));
 
-  nrHelper->SetUeSpectrumAttribute ("DropTbOnRbOnCollision", BooleanValue(true));
+  nrHelper->SetUeSpectrumAttribute ("DropTbOnRbOnCollision", BooleanValue(false));
 
   nrHelper->SetUeMacAttribute ("EnableSensing", BooleanValue (enableSensing));
   nrHelper->SetUeMacAttribute ("T1", UintegerValue (static_cast<uint8_t> (t1)));
@@ -1214,7 +1222,7 @@ main (int argc, char *argv[])
     {
       std::string mobilityFileName = "mobility-" + exampleName + ".txt";
       RecordMobility (true, mobilityFileName);
-      WriteGifGnuScript (mobilityFileName, simStopTime, speed, rxSlUes.Get (0), rxSlUes.Get (rxSlUes.GetN () - 1));
+      //WriteGifGnuScript (mobilityFileName, simStopTime, speed, rxSlUes.Get (0), rxSlUes.Get (rxSlUes.GetN () - 1));
     }
 
   std::cout<<"Begining Simulation"<<std::endl;

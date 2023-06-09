@@ -139,6 +139,7 @@ void
 NrSlInterference::AddSignal (Ptr<const SpectrumValue> spd, const Time duration)
 {
   NS_LOG_FUNCTION (this << *spd << duration);
+  //std::cout<<"apple"<<std::endl;
   DoAddSignal (spd);
   uint32_t signalId = ++m_lastSignalId;
   if (signalId == m_lastSignalIdBeforeReset)

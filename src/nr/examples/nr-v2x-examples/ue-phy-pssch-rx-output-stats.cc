@@ -53,7 +53,7 @@ UePhyPsschRxOutputStats::SetDb (SQLiteOutput *db, const std::string &tableName)
                       "ndi INTEGER NOT NULL,"
                       "rv INTEGER NOT NULL,"
                       "tbSizeBytes INTEGER NOT NULL,"
-                      "avrgSinr INTEGER NOT NULL,"
+                      "avrgSinr NOT NULL,"
                       "minSinr INTEGER NOT NULL,"
                       "psschTbler INTEGER NOT NULL,"
                       "psschCorrupt INTEGER NOT NULL,"

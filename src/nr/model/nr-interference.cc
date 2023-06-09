@@ -70,7 +70,7 @@ void
 NrInterference::AddSignal (Ptr<const SpectrumValue> spd, Time duration)
 {
   NS_LOG_FUNCTION (this << *spd << duration);
-
+//std::cout<<"pear"<<std::endl;
   // Integrate over our receive bandwidth.
   // Note that differently from wifi, we do not need to pass the
   // signal through the filter. This is because

@@ -106,6 +106,29 @@ ConstantVelocityHelper::UpdateWithBounds (const Rectangle &bounds) const
 }
 
 void
+ConstantVelocityHelper::UpdateWithWrappingBounds (const Rectangle &bounds) const
+{
+  NS_LOG_FUNCTION (this << bounds);
+  Update ();
+  if (m_position.x > bounds.xMax)
+  {
+    m_position.x = bounds.xMin;
+  }
+  else if (m_position.x < bounds.xMin)
+  {
+    m_position.x = bounds.xMax;
+  }
+  else if (m_position.y > bounds.yMax)
+  {
+    m_position.y = bounds.yMin;
+  }
+  else if (m_position.y < bounds.yMin)
+  {
+    m_position.y = bounds.yMax;
+  }
+}
+
+void
 ConstantVelocityHelper::UpdateWithBounds (const Box &bounds) const
 {
   NS_LOG_FUNCTION (this << bounds);

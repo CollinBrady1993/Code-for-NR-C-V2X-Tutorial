@@ -2014,11 +2014,6 @@ NrSpectrumPhy::RxSlPscch (std::vector<uint32_t> paramIndexes)
       if (!corrupt)
         {
           error = false;       //at least one control packet is OK
-          //SpectrumValue psd = m_slSigPerceived.at (paramIndex);
-          //PscchPduInfo pduInfo;
-          //pduInfo.packet = packet;
-          //pduInfo.psd = psd;
-          //rxControlMessageOkList.push_back (pduInfo);
           //Store the indices of the decoded RBs
           rbDecodedBitmap.insert ( m_slRxSigParamInfo.at (paramIndex).rbBitmap.begin (), m_slRxSigParamInfo.at (paramIndex).rbBitmap.end ());
         }
@@ -2340,6 +2335,7 @@ NrSpectrumPhy::RxSlPssch (std::vector<uint32_t> paramIndexes)
       traceParams.m_rv = sciF2a.GetRv ();
       traceParams.m_ndi = sciF2a.GetNdi ();
       traceParams.m_sinr = tbIt.second.sinrAvg;
+      //std::cout<<Simulator::Now ().GetSeconds () * 1000.0<<","<<ueRx->GetPhy (GetBwpId ())->GetRnti ()<<","<<tbIt.first<<","<<tbIt.second.sinrAvg<<std::endl;
       traceParams.m_sinrMin = tbIt.second.sinrMin;
       if (m_slDataErrorModelEnabled)
         {
@@ -2406,15 +2402,19 @@ NrSpectrumPhy::GetSinrStats (const SpectrumValue& sinr, const std::vector<int>& 
   SinrStats stats;
   stats.sinrAvg = 0;
   stats.sinrMin = 99999999999;
+  //std::cout<<"GetSinrStats Called"<<std::endl;
   for (const auto & rbIndex : rbBitmap)
     {
       stats.sinrAvg += sinr.ValuesAt (rbIndex);
+      
+      //std::cout<<sinr.ValuesAt (rbIndex)<<std::endl;
       if (sinr.ValuesAt (rbIndex) < stats.sinrMin)
         {
           stats.sinrMin = sinr.ValuesAt (rbIndex);
         }
     }
-
+    
+    
   stats.sinrAvg = stats.sinrAvg / rbBitmap.size ();
 
   return stats;
