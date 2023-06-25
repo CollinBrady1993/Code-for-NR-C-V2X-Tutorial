@@ -35,6 +35,7 @@ set(nr-v2x-examples_examples
     cttc-nr-v2x-demo-simple
     nr-v2x-west-to-east-highway
     nr-v2x-BradyCao
+    nr-v2x-BradyCao-PHYCol
 )
 set(nr-v2x-examples_source_files
     nr-v2x-examples/ue-mac-pscch-tx-output-stats.cc

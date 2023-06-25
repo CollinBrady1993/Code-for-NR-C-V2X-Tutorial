@@ -9,6 +9,7 @@ build_lib(
     model/constant-position-mobility-model.cc
     model/constant-velocity-helper.cc
     model/constant-velocity-mobility-model.cc
+    model/constant-velocity-mobility-model-bounded.cc
     model/gauss-markov-mobility-model.cc
     model/geographic-positions.cc
     model/hierarchical-mobility-model.cc
@@ -30,6 +31,7 @@ build_lib(
     model/constant-position-mobility-model.h
     model/constant-velocity-helper.h
     model/constant-velocity-mobility-model.h
+    model/constant-velocity-mobility-model-bounded.h
     model/gauss-markov-mobility-model.h
     model/geographic-positions.h
     model/hierarchical-mobility-model.h

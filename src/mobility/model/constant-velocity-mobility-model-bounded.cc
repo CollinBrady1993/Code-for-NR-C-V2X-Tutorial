@@ -17,32 +17,37 @@
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
-#include "constant-velocity-mobility-model.h"
+#include "constant-velocity-mobility-model-bounded.h"
 #include "ns3/simulator.h"
 
 namespace ns3 {
 
-NS_OBJECT_ENSURE_REGISTERED (ConstantVelocityMobilityModel);
+NS_OBJECT_ENSURE_REGISTERED (ConstantVelocityMobilityModelBounded);
 
-TypeId ConstantVelocityMobilityModel::GetTypeId (void)
+TypeId ConstantVelocityMobilityModelBounded::GetTypeId (void)
 {
-  static TypeId tid = TypeId ("ns3::ConstantVelocityMobilityModel")
+  static TypeId tid = TypeId ("ns3::ConstantVelocityMobilityModelBounded")
     .SetParent<MobilityModel> ()
     .SetGroupName ("Mobility")
-    .AddConstructor<ConstantVelocityMobilityModel> ();
+    .AddConstructor<ConstantVelocityMobilityModelBounded> ()
+    .AddAttribute ("Bounds", "The 2d bounding area",
+                   RectangleValue (Rectangle (0, 2600, 0, 10)),
+                   MakeRectangleAccessor (&ConstantVelocityMobilityModelBounded::m_bounds),
+                   MakeRectangleChecker ())
+    ;
   return tid;
 }
 
-ConstantVelocityMobilityModel::ConstantVelocityMobilityModel ()
+ConstantVelocityMobilityModelBounded::ConstantVelocityMobilityModelBounded ()
 {
 }
 
-ConstantVelocityMobilityModel::~ConstantVelocityMobilityModel ()
+ConstantVelocityMobilityModelBounded::~ConstantVelocityMobilityModelBounded ()
 {
 }
 
 void
-ConstantVelocityMobilityModel::SetVelocity (const Vector &speed)
+ConstantVelocityMobilityModelBounded::SetVelocity (const Vector &speed)
 {
   m_helper.Update ();
   m_helper.SetVelocity (speed);
@@ -52,22 +57,19 @@ ConstantVelocityMobilityModel::SetVelocity (const Vector &speed)
 
 
 Vector
-ConstantVelocityMobilityModel::DoGetPosition (void) const
+ConstantVelocityMobilityModelBounded::DoGetPosition (void) const
 {
-  m_helper.Update ();
-  //auto temp = m_helper.GetCurrentPosition ();
-  //std::cout<<m_helper.GetCurrentPosition ()<<std::endl;
-  //std::cout<<Vector(temp.x,temp.y,temp.z)<<std::endl;
+  m_helper.UpdateWithWrappingBounds (m_bounds);
   return m_helper.GetCurrentPosition ();
 }
 void 
-ConstantVelocityMobilityModel::DoSetPosition (const Vector &position)
+ConstantVelocityMobilityModelBounded::DoSetPosition (const Vector &position)
 {
   m_helper.SetPosition (position);
   NotifyCourseChange ();
 }
 Vector
-ConstantVelocityMobilityModel::DoGetVelocity (void) const
+ConstantVelocityMobilityModelBounded::DoGetVelocity (void) const
 {
   return m_helper.GetVelocity ();
 }

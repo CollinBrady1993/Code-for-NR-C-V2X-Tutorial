@@ -365,7 +365,7 @@ NrUeMac::GetTypeId (void)
                     "The percentage threshold to indicate the minimum number of"
                     "candidate single-slot resources to be selected using sensing"
                     "procedure",
-                    UintegerValue (20),
+                    UintegerValue (50),
                     MakeUintegerAccessor (&NrUeMac::SetResourcePercentage,
                                           &NrUeMac::GetResourcePercentage),
                     MakeUintegerChecker<uint8_t> (1, 100))
